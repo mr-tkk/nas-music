@@ -1,0 +1,40 @@
+[project]
+name = "nasmusic"
+version = "0.1.0"
+description = "NAS music library management system for Navidrome"
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.0",
+    "yt-dlp>=2024.0",
+    "mutagen>=1.47",
+    "musicbrainzngs>=0.7",
+    "httpx>=0.27",
+    "pydub>=0.25",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "platformdirs>=4.0",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+nasmusic = "nasmusic.cli.app:app"
+
+[project.optional-dependencies]
+spotify = ["spotdl>=4.2"]
+netease = ["pyncm>=1.6"]
+fingerprint = ["pyacoustid>=1.3"]
+navidrome = ["py-sonic>=1.0"]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+all = ["spotdl>=4.2", "pyncm>=1.6", "pyacoustid>=1.3"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nasmusic"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100

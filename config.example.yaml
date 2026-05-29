@@ -1,0 +1,27 @@
+library:
+  music_dir: "./music"
+  format: mp3
+  bitrate: 320
+  structure: "{artist}/{album}/{track_number:02d} - {title}"
+
+navidrome:
+  url: "http://your-nas-ip:4533"
+  username: admin
+  password: ""
+
+spotify:
+  client_id: ""
+  client_secret: ""
+
+netease:
+  phone: ""
+  password: ""
+
+qqmusic:
+  cookie: ""
+
+musicbrainz:
+  user_agent: "NASMusic/0.1.0 (your-email@example.com)"
+
+database:
+  path: "data/library.db"
