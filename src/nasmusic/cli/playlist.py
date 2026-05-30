@@ -20,14 +20,13 @@ def list_playlists():
 
     playlists = get_playlists()
     if not playlists:
-        print_info("No playlists yet. Use 'nasmusic playlist create' or 'nasmusic playlist import-*'.")
+        print_info("No playlists yet. Use 'nasmusic playlist create'.")
         return
 
     table = Table(title="Playlists")
     table.add_column("ID", style="dim", width=4)
     table.add_column("Name", style="cyan")
     table.add_column("Tracks", width=6)
-    table.add_column("Source", style="dim")
     table.add_column("Created", style="dim")
 
     for pl in playlists:
@@ -35,7 +34,6 @@ def list_playlists():
             str(pl["id"]),
             pl["name"],
             str(pl.get("track_count", 0)),
-            pl.get("source", "local"),
             pl.get("created_at", "")[:10],
         )
 
@@ -49,40 +47,6 @@ def create(name: str = typer.Argument(..., help="Playlist name")):
 
     pl_id = create_playlist(name)
     print_success(f"Created playlist '{name}' (ID: {pl_id})")
-
-
-@app.command(name="import-netease")
-def import_netease(url: str = typer.Argument(..., help="NetEase playlist URL")):
-    """Import a playlist from NetEase Cloud Music."""
-    from nasmusic.playlists.importer import import_netease_playlist, save_playlist_to_db
-
-    print_info(f"Importing from NetEase: {url}")
-    info = import_netease_playlist(url)
-
-    if info is None:
-        print_error("Failed to import playlist. Check the URL.")
-        raise typer.Exit(1)
-
-    console.print(f"[bold]{info.name}[/] - {len(info.tracks)} tracks")
-    pl_id = save_playlist_to_db(info)
-    print_success(f"Imported playlist '{info.name}' (ID: {pl_id})")
-
-
-@app.command(name="import-spotify")
-def import_spotify(url: str = typer.Argument(..., help="Spotify playlist URL")):
-    """Import a Spotify playlist (downloads all tracks)."""
-    from nasmusic.playlists.importer import import_spotify_playlist, save_playlist_to_db
-
-    print_info(f"Importing from Spotify: {url}")
-    info = import_spotify_playlist(url)
-
-    if info is None:
-        print_error("Failed to import playlist. Check the URL.")
-        raise typer.Exit(1)
-
-    pl_id = save_playlist_to_db(info)
-    print_success(f"Imported playlist '{info.name}' (ID: {pl_id})")
-    print_info("Use 'nasmusic download spotify <url>' to download all tracks.")
 
 
 @app.command()
@@ -124,10 +88,9 @@ def sync():
     console.print(f"\n[bold]Synced {len(paths)} playlists[/]")
 
 
-@app.command()
+@app.command(name="download-all")
 def download_all(
     name: str = typer.Argument(..., help="Playlist name or ID"),
-    source: str = typer.Option("spotify", "--source", "-s"),
 ):
     """Download all pending tracks in a playlist."""
     from nasmusic.core.database import get_database
@@ -148,7 +111,7 @@ def download_all(
         raise typer.Exit(1)
 
     cur = db.conn.execute(
-        """SELECT pending_title, pending_artist, pending_source, pending_source_id
+        """SELECT pending_title, pending_artist
         FROM playlist_tracks
         WHERE playlist_id = ? AND track_id IS NULL AND pending_title IS NOT NULL""",
         (playlist["id"],),
@@ -163,7 +126,7 @@ def download_all(
     for row in pending:
         query = f"{row[1]} - {row[0]}" if row[1] else row[0]
         try:
-            _do_download(source, query)
+            _do_download(query)
         except (typer.Exit, SystemExit):
             pass
         except Exception as e:

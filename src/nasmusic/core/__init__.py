@@ -28,20 +28,6 @@ class NavidromeConfig(BaseModel):
     password: str = ""
 
 
-class SpotifyConfig(BaseModel):
-    client_id: str = ""
-    client_secret: str = ""
-
-
-class NeteaseConfig(BaseModel):
-    phone: str = ""
-    password: str = ""
-
-
-class QQMusicConfig(BaseModel):
-    cookie: str = ""
-
-
 class MusicBrainzConfig(BaseModel):
     user_agent: str = "NASMusic/0.1.0"
 
@@ -53,9 +39,6 @@ class DatabaseConfig(BaseModel):
 class AppConfig(BaseModel):
     library: LibraryConfig = Field(default_factory=LibraryConfig)
     navidrome: NavidromeConfig = Field(default_factory=NavidromeConfig)
-    spotify: SpotifyConfig = Field(default_factory=SpotifyConfig)
-    netease: NeteaseConfig = Field(default_factory=NeteaseConfig)
-    qqmusic: QQMusicConfig = Field(default_factory=QQMusicConfig)
     musicbrainz: MusicBrainzConfig = Field(default_factory=MusicBrainzConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
 
@@ -119,17 +102,6 @@ navidrome:
   url: "http://your-nas-ip:4533"
   username: admin
   password: ""
-
-spotify:
-  client_id: ""
-  client_secret: ""
-
-netease:
-  phone: ""
-  password: ""
-
-qqmusic:
-  cookie: ""
 
 musicbrainz:
   user_agent: "NASMusic/0.1.0 (your-email@example.com)"

@@ -128,62 +128,14 @@ def match(
     console.print(f"\n[bold]Matched {matched}/{len(files)} files[/]")
 
 
-@app.command(name="fetch-lyrics")
-def fetch_lyrics(
-    path: Path = typer.Argument(..., help="File or directory"),
-    source: str = typer.Option("netease", "--source", "-s", help="Lyrics source: netease, qq"),
-):
-    """Fetch lyrics (LRC) for music files."""
-    from nasmusic.metadata import read_tags
-    from nasmusic.metadata.lyrics import save_lrc_file, has_lrc_file
-    from nasmusic.utils import find_audio_files
-
-    files = [path] if path.is_file() else find_audio_files(path)
-    fetched = 0
-
-    for f in files:
-        if has_lrc_file(f):
-            continue
-
-        meta = read_tags(f)
-        if not meta.title:
-            continue
-
-        query = f"{meta.artist} - {meta.title}" if meta.artist else meta.title
-        lrc_content = None
-
-        if source == "netease":
-            from nasmusic.downloaders.netease import NeteaseDownloader
-            dl = NeteaseDownloader()
-            results = dl.search(query, limit=1)
-            if results:
-                lrc_content = dl.get_lyrics(results[0].source_id)
-        elif source == "qq":
-            from nasmusic.metadata.lyrics import fetch_lyrics_qqmusic
-            from nasmusic.downloaders.qqmusic import QQMusicDownloader
-            dl = QQMusicDownloader()
-            results = dl.search(query, limit=1)
-            if results:
-                lrc_content = fetch_lyrics_qqmusic(results[0].source_id)
-
-        if lrc_content:
-            save_lrc_file(f, lrc_content)
-            fetched += 1
-            print_success(f"Lyrics: {f.name}")
-        else:
-            print_info(f"No lyrics: {f.name}")
-
-    console.print(f"\n[bold]Fetched lyrics for {fetched}/{len(files)} files[/]")
-
-
 @app.command(name="fetch-cover")
 def fetch_cover(
     path: Path = typer.Argument(..., help="File or directory"),
-    source: str = typer.Option("netease", "--source", "-s"),
 ):
-    """Fetch and embed cover art for music files."""
+    """Fetch cover art from MusicBrainz and embed into files."""
     from nasmusic.metadata import read_tags, has_cover_art
     from nasmusic.metadata.cover_art import fetch_and_embed_cover
+    from nasmusic.metadata.matcher import match_track
     from nasmusic.utils import find_audio_files
 
     files = [path] if path.is_file() else find_audio_files(path)
@@ -197,26 +149,12 @@ def fetch_cover(
         if not meta.title:
             continue
 
-        query = f"{meta.artist} - {meta.title}" if meta.artist else meta.title
-
-        if source == "netease":
-            from nasmusic.downloaders.netease import NeteaseDownloader
-            dl = NeteaseDownloader()
-            results = dl.search(query, limit=1)
-            if results and results[0].cover_url:
-                if fetch_and_embed_cover(f, results[0].cover_url):
-                    fetched += 1
-                    print_success(f"Cover: {f.name}")
-                    continue
-        elif source == "qq":
-            from nasmusic.downloaders.qqmusic import QQMusicDownloader
-            dl = QQMusicDownloader()
-            results = dl.search(query, limit=1)
-            if results and results[0].cover_url:
-                if fetch_and_embed_cover(f, results[0].cover_url):
-                    fetched += 1
-                    print_success(f"Cover: {f.name}")
-                    continue
+        result = match_track(meta)
+        if result and result.cover_url:
+            if fetch_and_embed_cover(f, result.cover_url):
+                fetched += 1
+                print_success(f"Cover: {f.name}")
+                continue
 
         print_info(f"No cover: {f.name}")
 

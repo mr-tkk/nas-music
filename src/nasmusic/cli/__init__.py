@@ -14,7 +14,7 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-app.add_typer(download_app, name="download", help="Download music from various sources")
+app.add_typer(download_app, name="download", help="Download music from YouTube")
 app.add_typer(metadata_app, name="metadata", help="Manage music metadata and tags")
 app.add_typer(library_app, name="library", help="Manage music library organization")
 app.add_typer(playlist_app, name="playlist", help="Manage playlists")
