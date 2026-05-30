@@ -22,11 +22,11 @@ nasmusic = "nasmusic.cli.app:app"
 
 [project.optional-dependencies]
 spotify = ["spotdl>=4.2"]
-netease = ["pyncm>=1.6"]
+netease = []
 fingerprint = ["pyacoustid>=1.3"]
 navidrome = ["py-sonic>=1.0"]
 dev = ["pytest>=8.0", "ruff>=0.4"]
-all = ["spotdl>=4.2", "pyncm>=1.6", "pyacoustid>=1.3"]
+all = ["spotdl>=4.2", "pyacoustid>=1.3"]
 
 [build-system]
 requires = ["hatchling"]
