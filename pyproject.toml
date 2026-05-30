@@ -2,7 +2,7 @@
 name = "nasmusic"
 version = "0.1.0"
 description = "NAS music library management system for Navidrome"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "typer>=0.12",
     "rich>=13.0",
@@ -36,5 +36,5 @@ build-backend = "hatchling.build"
 packages = ["src/nasmusic"]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py39"
 line-length = 100
